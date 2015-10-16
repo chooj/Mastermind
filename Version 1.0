@@ -1,0 +1,268 @@
+int turnsTaken = 0;
+int chooseX = 40;
+int chooseY = 160;
+int[] hx = new int[10];
+int[] hy = new int[4];
+color[] c = new color[4];
+color[] pc = new color[40];
+color[] ec = new color[4];
+int[] x = new int[6];
+color[] colors = new color[6];
+int[] whitePeg = new int[10];
+int[] redPeg = new int[10];
+boolean won = false;
+boolean gameOver = false;
+boolean inDirections = true;
+boolean inGame = false;
+
+void directions() {
+  fill(0);
+  textSize(50);
+  textAlign(CENTER);
+  text("MASTERMIND", width/2, 100);
+  textSize(20);
+  textAlign(LEFT);
+  text("TRY TO GUESS THE COMPUTER'S FOUR COLOR CODE", 30, 150);
+  text("YOU HAVE TEN TRIES", 30, 190);
+  text("WHITE PEGS MEAN THAT A PEG OF THE RIGHT COLOR IS IN THE WRONG SPOT", 30, 230);
+  text("RED PEGS MEAN THAT A PEG OF THE RIGHT COLOR IS IN THE RIGHT SPOT", 30, 270);
+  text("PRESS SPACE TO CONTINUE", 30, 310);
+}
+
+void check() {
+  if (ec[0] == c[0] && ec[1] == c[1] && ec[2] == c[2] && ec[3] == c[3]) {
+    won = true;
+  }
+  if (won == false) {
+    for (int i = 0; i < ec.length; i++) {
+      if (ec[i] ==  c[i]) {
+        redPeg[(chooseX-40)/80] = redPeg[(chooseX-40)/80] + 1;
+      }
+    }
+    if ((ec[0] == c[1])||(ec[0] == c[2])||(ec[0] == c[3])) {
+      whitePeg[(chooseX-40)/80] = whitePeg[(chooseX-40)/80] + 1;
+    }
+    if ((ec[1] == c[0])||(ec[1] == c[2])||(ec[1] == c[3])) {
+      whitePeg[(chooseX-40)/80] = whitePeg[(chooseX-40)/80] + 1;
+    }
+    if ((ec[2] == c[0])||(ec[2] == c[1])||(ec[2] == c[3])) {
+      whitePeg[(chooseX-40)/80] = whitePeg[(chooseX-40)/80] + 1;
+    }
+    if ((ec[3] == c[0])||(ec[3] == c[1])||(ec[3] == c[2])) {
+      whitePeg[(chooseX-40)/80] = whitePeg[(chooseX-40)/80] + 1;
+    }
+    if (turnsTaken >= 10 && won == false) {
+      gameOver = true;
+    }
+  }
+}
+
+void enter() {
+  if (c[0] != color(50) && c[1] != color(50) && c[2] != color(50) && c[3] != color(50)) {
+    turnsTaken = turnsTaken + 1;
+    check();
+    if (turnsTaken < 10) {
+      for (int i = 0; i < c.length; i++) {
+        pc[4*((chooseX-40)/80) + i] = c[i];
+      }
+      for (int i = 0; i < c.length; i++) {
+        c[i] = color(50);
+      }
+      chooseX = hx[turnsTaken];
+      chooseY = hy[0];
+    }
+  }
+}
+
+void ending() {
+  filter(BLUR);
+  fill(0);
+  textAlign(CENTER);
+  textSize(40);
+  text("PRESS SPACE TO RESTART", width/2, 270);
+  textSize(100);
+}
+
+void winning() {
+  ending();
+  text("YOU WIN", width/2, 230);
+}
+
+void losing() {
+  ending();
+  text("YOU LOST", width/2, 230);
+}
+
+void restart() {
+  turnsTaken = 0;
+  chooseX = 40;
+  chooseY = 160;
+  won = false;
+  gameOver = false;
+  for (int i = 0; i < c.length; i++) {
+    c[i] = color(50);
+    ec[i] = colors[round(random(colors.length - 1))];
+  }
+  for (int i = 0; i < pc.length; i++) {
+    pc[i] = color(50);
+  }
+  for (int i = 0; i < whitePeg.length; i++) {
+    whitePeg[i] = 0;
+    redPeg[i] = 0;
+  }
+}
+
+void setup() {
+  size(800, 400);
+  for (int i = 0; i < hx.length; i++) {
+    hx[i] = 40 + i*80;
+  }
+  for (int i = 0; i < hy.length; i++) {
+    hy[i] = 160 + i*60;
+  }
+  colors[0] = color(255, 0, 0);
+  colors[1] = color(255, 125, 0);
+  colors[2] = color(255, 255, 0);
+  colors[3] = color(0, 255, 0);
+  colors[4] = color(0, 0, 255);
+  colors[5] = color(255, 0, 255);
+  for (int i = 0; i < c.length; i++) {
+    c[i] = color(50);
+    ec[i] = colors[round(random(colors.length - 1))];
+  }
+  for (int i = 0; i < pc.length; i++) {
+    pc[i] = color(50);
+  }
+  for (int i = 0; i < x.length; i++) {
+    x[i] = 40 + i*80;
+  }
+  for (int i = 0; i < whitePeg.length; i++) {
+    whitePeg[i] = 0;
+    redPeg[i] = 0;
+  }
+}
+
+void draw() {
+  background(220);
+  if (inDirections == true) {
+    directions();
+  }
+  if (inGame == true) {
+    noStroke();
+    for (int i = 0; i < 5; i++) {
+      fill(150);
+      rect(i*160, 100, 80, 300);
+      fill(200);
+      rect(80 + i*160, 100, 80, 300);
+    }
+    for (int i = 0; i < hy.length; i++) {
+      for (int j = 0; j < hx.length; j++) {
+        fill(pc[i + (j*4)]);
+        ellipse(hx[j], hy[i], 15, 15);
+      }
+    }
+    for (int j = 0; j < hy.length; j++) {
+      for (int i = 0; i < hx.length; i++) {
+        fill(c[j]);
+        ellipse(hx[(chooseX-40)/80], hy[j], 15, 15);
+      }
+    }
+    for (int i = 0; i < x.length; i++) {
+      fill(colors[i]);
+      ellipse(x[i], 50, 15, 15);
+    }
+    fill(200);
+    rect(600, 30, 120, 40);
+    fill(0);
+    textSize(30);
+    textAlign(CENTER);
+    text("ENTER", 660, 60);
+    noFill();
+    stroke(255);
+    strokeWeight(2);
+    ellipse(chooseX, chooseY, 15, 15);
+    noStroke();
+    for (int h = 0; h < whitePeg.length; h++) {
+      for (int i = 0; i < 4; i++) {
+        if (whitePeg[h] == i + 1) {
+          for (int j = 0; j < whitePeg[h]; j++) {
+            fill(255);
+            ellipse(31 + (h*80) + j*6, 370, 4, 4);
+          }
+        }
+      }
+    }
+    for (int h = 0; h < redPeg.length; h++) {
+      for (int i = 0; i < 4; i++) {
+        if (redPeg[h] == i + 1) {
+          for (int j = 0; j < redPeg[h]; j++) {
+            fill(255, 0, 0);
+            ellipse(31 + (h*80) + j*6, 376, 4, 4);
+          }
+        }
+      }
+    }
+    if (won == true) {
+      winning();
+    }
+    if (gameOver == true) {
+      losing();
+    }
+  }
+}
+
+void keyPressed() {
+  if (key == ' ' && inDirections == true) {
+    inDirections = false;
+    inGame = true;
+  }
+  if (keyCode == DOWN && chooseY < 340) {
+    chooseY = chooseY + 60;
+  }
+  if (keyCode == UP && chooseY > 160) {
+    chooseY = chooseY - 60;
+  }
+  if (key == 'r') {
+    c[(chooseY-160)/60] = colors[0];
+  }
+  if (key == 'o') {
+    c[(chooseY-160)/60] = colors[1];
+  }
+  if (key == 'y') {
+    c[(chooseY-160)/60] = colors[2];
+  }
+  if (key == 'g') {
+    c[(chooseY-160)/60] = colors[3];
+  }
+  if (key == 'b') {
+    c[(chooseY-160)/60] = colors[4];
+  }
+  if ((key == 'p')||(key == 'v')) {
+    c[(chooseY-160)/60] = colors[5];
+  }
+  if (keyCode == ENTER) {
+    enter();
+  }
+  if (key == ' ' && ((won == true)||(gameOver == true))) {
+    restart();
+  }
+}
+
+void mousePressed() {
+  if (won == false && gameOver == false) {
+    for (int i = 0; i < hy.length; i++) {
+      if (mouseY > hy[i] - 10 && mouseY < hy[i] + 10) {
+        chooseX = hx[turnsTaken];
+        chooseY = hy[i];
+      }
+    }
+    if (mouseX > 600 && mouseX < 710 && mouseY > 30 && mouseY < 70) {
+      enter();
+    }
+    for (int i = 0; i < x.length; i++) {
+      if (mouseX > x[i] - 10 && mouseX < x[i] + 10 && mouseY > 40 && mouseY < 60) {
+        c[(chooseY-160)/60] = colors[i];
+      }
+    }
+  }
+}
